@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>Admin Login — Librarium</title>
+  <link rel="stylesheet" href="style.css"/>
+  <style>
+    body{display:flex;align-items:center;justify-content:center;min-height:100vh;}
+    .orb{position:fixed;border-radius:50%;filter:blur(90px);opacity:.13;pointer-events:none;animation:orb 9s ease-in-out infinite;}
+    .o1{width:420px;height:420px;background:var(--cyan);top:-120px;right:-100px;}
+    .o2{width:320px;height:320px;background:#6b00ff;bottom:-80px;left:-80px;animation-delay:3s;}
+    .o3{width:220px;height:220px;background:var(--amber);top:55%;left:28%;animation-delay:5.5s;}
+    @keyframes orb{0%,100%{transform:translate(0,0) scale(1)}40%{transform:translate(18px,-18px) scale(1.04)}70%{transform:translate(-10px,12px) scale(.97)}}
+    .wrap{position:relative;z-index:1;width:100%;max-width:420px;padding:20px;}
+    .brand{text-align:center;margin-bottom:32px;animation:fi .6s ease forwards;}
+    .brand-icon{width:60px;height:60px;margin:0 auto 14px;background:rgba(0,212,255,0.08);border:1px solid var(--bdrg);border-radius:var(--r2);display:flex;align-items:center;justify-content:center;font-size:1.7rem;}
+    .brand-title{font-family:var(--ffd);font-size:2rem;color:var(--tx1);letter-spacing:.08em;}
+    .brand-sub{font-family:var(--ffm);font-size:.68rem;color:var(--cyan);letter-spacing:.2em;text-transform:uppercase;margin-top:4px;}
+    .box{background:var(--glass);backdrop-filter:blur(20px);border:1px solid var(--bdrg);border-radius:var(--r3);padding:36px;box-shadow:0 24px 70px rgba(0,0,0,.4),var(--glow);animation:fi .6s .2s ease both;opacity:0;}
+    .box h2{font-size:1.35rem;margin-bottom:4px;}
+    .box p{font-size:.85rem;color:var(--tx3);margin-bottom:24px;}
+    .inp-wrap{position:relative;}
+    .inp-icon{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--tx3);pointer-events:none;}
+    .inp-wrap input{padding-left:36px;}
+    .eye{position:absolute;right:12px;top:50%;transform:translateY(-50%);cursor:pointer;background:none;border:none;color:var(--tx3);font-size:.95rem;transition:var(--ease);}
+    .eye:hover{color:var(--cyan);}
+    .err{display:flex;align-items:center;gap:8px;background:rgba(255,80,80,0.08);border:1px solid rgba(255,80,80,0.25);border-radius:var(--r1);padding:10px 14px;font-size:.85rem;color:#ff6b6b;margin-bottom:14px;animation:shake .4s ease;}
+    @keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+    .login-btn{width:100%;justify-content:center;font-size:.9rem;margin-top:4px;}
+    .ldr-btn{display:none;width:16px;height:16px;border:2px solid rgba(255,255,255,.3);border-top-color:var(--bg);border-radius:50%;animation:spin .7s linear infinite;}
+    .login-btn.loading .ldr-btn{display:block;} .login-btn.loading .btn-txt{display:none;}
+    .back{display:flex;align-items:center;gap:6px;font-size:.82rem;color:var(--tx3);margin-top:18px;justify-content:center;transition:var(--ease);}
+    .back:hover{color:var(--cyan);}
+    .sec-note{display:flex;align-items:center;gap:6px;font-size:.72rem;color:var(--tx3);margin-top:20px;padding-top:18px;border-top:1px solid var(--bdr);font-family:var(--ffm);}
+  </style>
+</head>
+<body>
+  <div class="orb o1"></div><div class="orb o2"></div><div class="orb o3"></div>
+  <div class="wrap">
+    <div class="brand">
+      <div class="brand-icon">📚</div>
+      <div class="brand-title">Librarium</div>
+      <div class="brand-sub">Admin Portal</div>
+    </div>
+    <div class="box">
+      <h2>Secure Sign-In</h2>
+      <p>Enter your credentials to access the admin panel.</p>
+      <div id="err" class="err hidden"><span>⚠</span><span id="err-txt">Invalid credentials.</span></div>
+      <div class="fg">
+        <label for="un">Username</label>
+        <div class="inp-wrap"><span class="inp-icon">◈</span><input type="text" id="un" placeholder="Enter username" autocomplete="username"/></div>
+      </div>
+      <div class="fg">
+        <label for="pw">Password</label>
+        <div class="inp-wrap">
+          <span class="inp-icon">⬡</span>
+          <input type="password" id="pw" placeholder="Enter password" autocomplete="current-password"/>
+          <button class="eye" id="eye" type="button">👁</button>
+        </div>
+      </div>
+      <div style="height:8px"></div>
+      <button class="btn btn-primary login-btn" id="login-btn">
+        <span class="ldr-btn"></span><span class="btn-txt">Sign In to Dashboard</span>
+      </button>
+      <a href="index.html" class="back">← Back to Library</a>
+      <div class="sec-note"><span>🔒</span><span>Session expires when browser closes</span></div>
+    </div>
+  </div>
+  <div id="toast-container"></div>
+  <script src="script.js"></script>
+  <script>
+    if (Auth.isLoggedIn()) location.href='admin-dashboard.html';
+    const btn=document.getElementById('login-btn'),un=document.getElementById('un'),
+          pw=document.getElementById('pw'),errBox=document.getElementById('err'),
+          errTxt=document.getElementById('err-txt');
+    document.getElementById('eye').addEventListener('click',function(){
+      const t=pw.type==='text'; pw.type=t?'password':'text'; this.textContent=t?'👁':'🙈';
+    });
+    function showErr(m){ errTxt.textContent=m; errBox.classList.remove('hidden'); errBox.style.animation='none'; errBox.offsetHeight; errBox.style.animation='shake .4s ease'; }
+    function attempt(){
+      const u=un.value.trim(),p=pw.value.trim();
+      if(!u||!p){ showErr('Please fill in both fields.'); return; }
+      btn.classList.add('loading'); btn.disabled=true;
+      setTimeout(()=>{
+        if(Auth.login(u,p)){ Toast.success('Welcome back!'); setTimeout(()=>location.href='admin-dashboard.html',700); }
+        else{ btn.classList.remove('loading'); btn.disabled=false; showErr('Invalid username or password.'); pw.value=''; }
+      },900);
+    }
+    btn.addEventListener('click',attempt);
+    [un,pw].forEach(i=>{ i.addEventListener('keydown',e=>{ if(e.key==='Enter') attempt(); }); i.addEventListener('input',()=>errBox.classList.add('hidden')); });
+  </script>
+</body>
+</html>
